@@ -1,40 +1,91 @@
 import express from 'express';
-import data from './data.js';
 import fs from 'fs/promises';
+import NotFound from 'http-errors';
+import Joi from 'joi';
+
 
 const router = express.Router();
 
+const productSchema = Joi.object({
+    id: Joi.number().required(),
+    name: Joi.string().required(),
+    location: Joi.string().required(),
+});
 
-// router.get('/', (req, res) => {
-//     res.json({
-//         'name': 'name'
-//     });
-// });
-
-// router.get('/:id', (req, res) => {
-//     const { id } = req.params;
-//     const result = data.find(item => item.id === id);
-//     if (!result) {
-//         res.status(404).json({
-//             'status': 'error',
-//             'code': '404'
-//         });
-//     }
-//     res.json(result);
-// });
-
-
-// //post
-
-// router.post('/', (req, res) => {
-//     const newProduct = { ...req.body, id: '22' };
-//     data.push(newProduct);
-//     res.status(201).json(newProduct);
-// });
 
 router.get('/', async (req, res, next) => {
-    const products = await fs.readFile('src/data.js', 'utf-8');
-    console.log(products);
-    res.json(products);
+    try {
+        const data = await fs.readFile('src/data.json', 'utf-8');
+        const products = JSON.parse(data);
+        res.json(products);
+    } catch (error) {
+        console.log('error');
+        next(error);
+    }
+});
+
+router.get('/:id', async (req, res, next) => {
+
+    try {
+        const { id } = req.params;
+        const data = await fs.readFile('src/data.json', 'utf-8');
+        const products = JSON.parse(data);
+        const result = products.find(product => product.id === id);
+        if (!result) {
+            throw new NotFound('not found');
+        }
+        res.json(result);
+    } catch (error) {
+        next(error);
+
+    }
+});
+
+router.post('/', async (req, res, next) => {
+    try {
+        const { error } = productSchema.validate(req.body);
+        if (error) {
+            error.status(400);
+            throw error;
+        }
+        const data = await fs.readFile('src/data.json', 'utf-8');
+        const products = JSON.parse(data);
+        products.push(req.body);
+        res.status(201).json(req.body);
+        await fs.writeFile('src/data.json', JSON.stringify(products), 'utf-8');
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.put('/:id', async (req, res, next) => {
+    try {
+        const { error } = productSchema.validate(req.body);
+        if (error) {
+            error.status(400);
+            throw error;
+        }
+        const { id } = req.params;
+        const data = await fs.readFile('src/data.json', 'utf-8');
+        const products = JSON.parse(data);
+        const indexToUpdate = products.find(product => product.id === Number(id));
+        products[indexToUpdate] = req.body;
+        res.json(req.body);
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.delete('/:id', async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const data = await fs.readFile('src/data.json', 'utf-8');
+        const products = JSON.parse(data);
+        const indexToUpdate = products.find(product => product.id === Number(id));
+        products.splice(indexToUpdate, 1);
+        res.status(201).json(req.body);
+    } catch (error) {
+        next(error);
+    }
 });
 export default router;
