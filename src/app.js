@@ -1,7 +1,24 @@
-import express, { response } from 'express';
+import express from 'express';
 import cors from 'cors';
 import router from './products.js';
 import pino from 'pino-http';
+import mongoose from "mongoose";
+import dotenv from 'dotenv';
+
+
+dotenv.config();
+const { DB_HOST } = process.env;
+
+mongoose.set('strictQuery', true);
+
+mongoose.connect(DB_HOST)
+    .then(() => console.log(DB_HOST))
+    .catch((err) => {
+        console.log(err.message);
+        // process.exit(1);
+    });
+
+
 
 const PORT = 3000;
 

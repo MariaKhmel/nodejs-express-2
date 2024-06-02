@@ -1,12 +1,17 @@
-import mongoose from "mongoose";
+// import mongoose from "mongoose";
+// import dotenv from 'dotenv';
 
-const DB_HOST = "mongodb+srv://mariakhmel8:nkqkQCQZ5HyF5vop@cluster0.d8eotrg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
-mongoose.set('strictQuery', true);
+// dotenv.config();
+// const { DB_HOST } = process.env;
 
-mongoose.connect(DB_HOST)
-    .then(() => console.log('connect'))
-    .catch((err) => {
-        console.log(err.message);
-        // process.exit(1);
-    });
+// mongoose.set('strictQuery', true);
+
+// mongoose.connect(DB_HOST)
+//     .then(() => console.log('connect,hi'))
+//     .catch((err) => {
+//         console.log(err.message);
+//         // process.exit(1);
+//     });
+
+
